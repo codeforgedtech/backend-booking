@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { supabase } from '../../supabaseClient'; // Adjust import according to your project structure
+import { supabase } from '../../supabaseClient';
+import './BookingForm.scss';
 
 interface Customer {
   id: string;
@@ -13,11 +14,11 @@ interface Service {
 
 interface AvailableSlot {
   id: string;
-  service_id: string; // Added to match the structure
+  service_id: string;
   date: string;
   start_time: string;
   end_time: string;
-  is_booked: boolean; // Added for clarity
+  is_booked: boolean;
 }
 
 const BookingForm: React.FC = () => {
@@ -28,21 +29,28 @@ const BookingForm: React.FC = () => {
   const [selectedService, setSelectedService] = useState<string>('');
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [selectedSlot, setSelectedSlot] = useState<AvailableSlot | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     fetchCustomers();
     fetchServices();
   }, []);
 
+  useEffect(() => {
+    if (selectedService && selectedDate) {
+      fetchAvailableSlots();
+    }
+  }, [selectedService, selectedDate]);
+
   const fetchCustomers = async () => {
-    const { data, error } = await supabase.from('customers').select('*'); // Adjust table name
-    if (error) console.error('Error fetching customers:', error);
+    const { data, error } = await supabase.from('customers').select('*');
+    if (error) console.error('Fel vid hämtning av kunder:', error);
     else setCustomers(data);
   };
 
   const fetchServices = async () => {
     const { data, error } = await supabase.from('services').select('*');
-    if (error) console.error('Error fetching services:', error);
+    if (error) console.error('Fel vid hämtning av tjänster:', error);
     else setServices(data);
   };
 
@@ -53,41 +61,84 @@ const BookingForm: React.FC = () => {
         .select('*')
         .eq('service_id', selectedService)
         .eq('date', selectedDate)
-        .eq('is_booked', false); // Fetch only unbooked slots
-      if (error) console.error('Error fetching available slots:', error);
-      else setAvailableSlots(data);
+        .eq('is_booked', false);
+
+      if (error) {
+        console.error('Fel vid hämtning av lediga tider:', error);
+        setErrorMessage('Fel vid hämtning av lediga tider.');
+      } else if (data.length === 0) {
+        setErrorMessage('Inga lediga tider tillgängliga för valt datum och tjänst.');
+        setAvailableSlots([]);
+      } else {
+        setErrorMessage(null);
+        setAvailableSlots(data);
+      }
     }
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!selectedSlot) return; // Ensure a slot is selected
+    if (!selectedSlot || !selectedCustomer) return; // Kontrollera att både slot och kund är valda
 
-    const { error } = await supabase
+    // 1. Uppdatera tillgänglig tid för att markera den som bokad
+    const { error: updateError } = await supabase
       .from('available_slots')
       .update({ is_booked: true })
       .eq('id', selectedSlot.id);
 
-    if (error) {
-      console.error('Error booking service:', error);
-    } else {
-      alert('Booking successful!');
-      // Optionally reset form or handle further logic
+    if (updateError) {
+        console.error('Fel vid bokning av tjänst:', updateError);
+        alert('Bokning misslyckades. Försök igen.');
+        return; // Avbryt om uppdateringen misslyckas
     }
+
+    // 2. Infoga en ny bokning i bokningstabellen
+    const { error: insertError } = await supabase
+    .from('bookings')
+    .insert({
+        customer_id: selectedCustomer,
+        service_id: selectedService,
+        booking_date: selectedDate,
+        start_time: selectedSlot.start_time,
+        end_time: selectedSlot.end_time,
+        status: 'Confirmed', // Använd giltigt status
+        created_at: new Date().toISOString(), // Sätter nuvarande tid som skapad tid
+    });
+
+    if (insertError) {
+        console.error('Fel vid skapande av bokning:', insertError);
+        alert('Bokning misslyckades. Försök igen.');
+    } else {
+        alert('Bokning lyckades!');
+        resetForm(); // Rensa formuläret vid lyckad bokning
+    }
+};
+
+  const resetForm = () => {
+    setSelectedCustomer('');
+    setSelectedService('');
+    setSelectedDate('');
+    setAvailableSlots([]);
+    setSelectedSlot(null);
+    setErrorMessage(null);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="p-4 bg-gray-100 rounded shadow-md">
-      <h2 className="text-xl font-bold mb-4">Booking Form</h2>
+    <form onSubmit={handleSubmit} className="booking-form">
+      <h2 className="form-title">Bokningsformulär</h2>
 
-      <label className="block mb-2">
-        Customer
+      {errorMessage && <p className="error-message">{errorMessage}</p>}
+
+      <label className="form-label">
+        Kund
         <select
-          className="mt-1 block w-full p-2 border rounded"
+          className="form-select"
           value={selectedCustomer}
-          onChange={(e) => setSelectedCustomer(e.target.value)}
+          onChange={(e) => {
+            setSelectedCustomer(e.target.value);
+          }}
         >
-          <option value="">Select Customer</option>
+          <option value="">Välj kund</option>
           {customers.map((customer) => (
             <option key={customer.id} value={customer.id}>
               {customer.name}
@@ -96,17 +147,18 @@ const BookingForm: React.FC = () => {
         </select>
       </label>
 
-      <label className="block mb-2">
-        Service
+      <label className="form-label">
+        Tjänst
         <select
-          className="mt-1 block w-full p-2 border rounded"
+          className="form-select"
           value={selectedService}
           onChange={(e) => {
             setSelectedService(e.target.value);
-            fetchAvailableSlots();
+            setAvailableSlots([]); // Rensa tillgängliga tider när tjänst ändras
+            setSelectedSlot(null); // Rensa valt slot
           }}
         >
-          <option value="">Select Service</option>
+          <option value="">Välj tjänst</option>
           {services.map((service) => (
             <option key={service.id} value={service.id}>
               {service.name}
@@ -115,49 +167,58 @@ const BookingForm: React.FC = () => {
         </select>
       </label>
 
-      <label className="block mb-2">
-        Date
+      <label className="form-label">
+        Datum
         <input
           type="date"
-          className="mt-1 block w-full p-2 border rounded"
+          className="form-input"
           value={selectedDate}
           onChange={(e) => {
             setSelectedDate(e.target.value);
-            fetchAvailableSlots();
+            setAvailableSlots([]); // Rensa tillgängliga tider när datum ändras
+            setSelectedSlot(null); // Rensa valt slot
           }}
         />
       </label>
 
-      <label className="block mb-2">
-        Time Slot
-        <select
-          className="mt-1 block w-full p-2 border rounded"
-          value={selectedSlot?.id || ''}
-          onChange={(e) => {
-            const slot = availableSlots.find((s) => s.id === e.target.value);
-            setSelectedSlot(slot || null);
-          }}
-        >
-          <option value="">Select Time Slot</option>
-          {availableSlots.map((slot) => (
-            <option key={slot.id} value={slot.id}>
-              {`${slot.start_time} - ${slot.end_time}`}
-            </option>
-          ))}
-        </select>
-      </label>
+      <div className="available-slots">
+        <h3 className="slots-title">Lediga Tider</h3>
+        <ul className="slots-list">
+          {availableSlots.length > 0 ? (
+            availableSlots.map((slot) => (
+              <li
+                key={slot.id}
+                className={`slot-item ${selectedSlot?.id === slot.id ? 'selected' : ''}`}
+                onClick={() => setSelectedSlot(slot)}
+              >
+                {`${slot.start_time} - ${slot.end_time}`}
+              </li>
+            ))
+          ) : (
+            <li>Inga lediga tider tillgängliga.</li>
+          )}
+        </ul>
+      </div>
 
       <button
         type="submit"
-        className="mt-4 p-2 bg-blue-500 text-white rounded hover:bg-blue-700"
+        className="submit-button"
+        disabled={!selectedSlot || !selectedCustomer} // Inaktivera knappen om ingen kund eller slot är valt
       >
-        Book Now
+        Boka nu
       </button>
     </form>
   );
 };
 
 export default BookingForm;
+
+
+
+
+
+
+
 
 
 

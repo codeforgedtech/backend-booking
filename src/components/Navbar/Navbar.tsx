@@ -15,7 +15,7 @@ const Navbar: React.FC = () => {
         <li>
           <Link to="/" className="hover:text-gray-300">
             <FontAwesomeIcon icon={faHome} className="icon" />
-            Homologic
+            Kontrollpaneln
           </Link>
           </li>
           <li>
@@ -26,13 +26,13 @@ const Navbar: React.FC = () => {
         </li>
         
         <li>
-          <Link to="/services" className="hover:text-gray-300">
+          <Link to="/bookings" className="hover:text-gray-300">
             <FontAwesomeIcon icon={faBook} className="icon" />
             Bokningar
           </Link>
         </li>
         <li>
-          <Link to="/booking" className="hover:text-gray-300">
+          <Link to="/addBooking" className="hover:text-gray-300">
             <FontAwesomeIcon icon={faBook} className="icon" />
             Boka kund
           </Link>
