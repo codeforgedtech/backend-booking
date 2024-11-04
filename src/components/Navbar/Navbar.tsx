@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHome, faCog, faClipboardList, faUser, faBook } from '@fortawesome/free-solid-svg-icons';
+import { faHome, faCog, faClipboardList, faUser, faBook, faPeopleGroup } from '@fortawesome/free-solid-svg-icons';
 import './Navbar.scss';
 
 const Navbar: React.FC = () => {
@@ -15,13 +15,26 @@ const Navbar: React.FC = () => {
         <li>
           <Link to="/" className="hover:text-gray-300">
             <FontAwesomeIcon icon={faHome} className="icon" />
-            Dashboard
+            Homologic
+          </Link>
+          </li>
+          <li>
+          <Link to="/customers" className="hover:text-gray-300">
+            <FontAwesomeIcon icon={faPeopleGroup} className="icon" />
+            Kunder
           </Link>
         </li>
+        
         <li>
           <Link to="/services" className="hover:text-gray-300">
             <FontAwesomeIcon icon={faBook} className="icon" />
             Bokningar
+          </Link>
+        </li>
+        <li>
+          <Link to="/booking" className="hover:text-gray-300">
+            <FontAwesomeIcon icon={faBook} className="icon" />
+            Boka kund
           </Link>
         </li>
         <li>
