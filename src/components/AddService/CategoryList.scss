@@ -1,0 +1,47 @@
+// src/components/CategoryList.scss
+
+$primary-color: #3b82f6; // Tailwind's blue-500
+$text-color: #374151; // Tailwind's gray-700
+$background-color: #f9fafb; // Tailwind's gray-100
+$error-color: #f87171; // Tailwind's red-400
+
+.category-list-container {
+  max-width: 28rem; // Adjust max-width as needed
+  margin: auto;
+  padding: 2rem;
+  background-color: #ffffff; // White background for the list
+  border: 1px solid #e5e7eb; // Tailwind's gray-200
+  border-radius: 0.5rem; // Rounded corners
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); // Shadow for the list
+
+  h2 {
+    font-size: 1.5rem; // Title size
+    font-weight: 600;
+    color: $text-color; // Main text color
+    margin-bottom: 1rem;
+  }
+
+  .error-message {
+    color: $error-color;
+    margin-bottom: 1rem;
+  }
+
+  ul {
+    list-style-type: disc;
+    padding-left: 1.5rem; // Indentation for list items
+
+    li {
+      margin-bottom: 1rem; // Space between list items
+
+      .font-semibold {
+        color: $text-color; // Color for category name
+        font-weight: 600;
+      }
+
+      p {
+        color: #4b5563; // Tailwind's gray-600 for descriptions
+        margin: 0; // Reset margin for paragraph
+      }
+    }
+  }
+}

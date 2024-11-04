@@ -1,0 +1,75 @@
+$bg-color: #1f2937; // Tailwind's gray-800
+$text-color: #ffffff; // White text color
+$hover-color: #d1d5db; // Tailwind's gray-300 for hover
+$shadow-color: rgba(0, 0, 0, 0.2); // Shadow color
+
+.navbar-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    width: 100%; // Full width of the viewport
+    background-color: $bg-color;
+    color: $text-color;
+    box-shadow: 0 4px 8px $shadow-color;
+    position: fixed; // Sticks the navbar to the top if you need it
+    top:0;          // Ensures it’s at the top of the screen
+    left: 0;         // Aligns to the left edge of the screen
+    z-index: 1000;
+
+  .logo {
+    display: flex;
+    align-items: center;
+
+    img {
+      height: 2.5rem; // Adjust logo size
+      margin-right: 0.5rem;
+    }
+
+    .title {
+      font-size: 1.75rem;
+      font-weight: 600;
+    }
+  }
+
+  ul {
+    display: flex;
+    gap: 1.5rem;
+
+    li {
+      a {
+        display: flex;
+        align-items: center;
+        color: $text-color;
+        text-decoration: none;
+        font-size: 1rem;
+        transition: color 0.3s ease;
+
+        &:hover {
+          color: $hover-color;
+        }
+
+        .icon {
+          margin-right: 0.25rem;
+          font-size: 1.25rem; // Adjust icon size
+        }
+      }
+    }
+  }
+}
+
+// Responsive design for smaller screens
+@media (max-width: 768px) {
+  .navbar-container {
+    flex-direction: column;
+    align-items: flex-start;
+
+    .logo {
+      margin-bottom: 1rem;
+    }
+
+    ul {
+      gap: 1rem;
+    }
+  }
+}
