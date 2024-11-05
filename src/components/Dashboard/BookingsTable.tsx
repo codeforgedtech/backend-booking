@@ -1,92 +1,141 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../../supabaseClient';
-import styles from './BookingsTable.module.scss';
 
 interface Booking {
   id: string;
-  customer_name: string;
-  service_name: string;
-  booking_date: string;
+  customer_id: string | null;
+  service_id: string | null;
+  booking_date: string; // Adjusted from date to string format
   start_time: string;
   end_time: string;
   status: string;
+  created_at: string;
+}
+
+interface Service {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  category_id: string | null;
+}
+
+interface Customer {
+  id: string;
+  name: string;
+  phone: string;
+}
+
+interface Category {
+  id: string;
+  name: string;
 }
 
 const BookingsTable: React.FC = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [customers, setCustomers] = useState<Customer[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchBookings = async () => {
       const { data, error } = await supabase
-        .from('bookings')
-        .select(`
-          id,
-          booking_date,
-          start_time,
-          end_time,
-          status,
-          customers ( name ),
-          services ( name )
-        `);
+        .from('bookings') // Change to bookings table
+        .select('*')
+        .eq('status', 'Confirmed'); // Filter to get only confirmed bookings
 
       if (error) {
-        console.error('Fel vid hämtning av bokningar:', error);
-        setError('Kunde inte hämta bokningar.');
+        console.error('Error fetching bookings:', error);
+        setError(error.message);
       } else {
-        setBookings(
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          data.map((item: any) => ({
-            id: item.id,
-            customer_name: item.customers.name,
-            service_name: item.services.name,
-            booking_date: item.booking_date,
-            start_time: item.start_time,
-            end_time: item.end_time,
-            status: item.status,
-          }))
-        );
+        setBookings(data);
+      }
+    };
+
+    const fetchServices = async () => {
+      const { data, error } = await supabase.from('services').select('*');
+      if (error) {
+        console.error('Error fetching services:', error);
+      } else {
+        setServices(data);
+      }
+    };
+
+    const fetchCategories = async () => {
+      const { data, error } = await supabase.from('categories').select('*');
+      if (error) {
+        console.error('Error fetching categories:', error);
+      } else {
+        setCategories(data);
+      }
+    };
+
+    const fetchCustomers = async () => {
+      const { data, error } = await supabase.from('customers').select('*');
+      if (error) {
+        console.error('Error fetching customers:', error);
+      } else {
+        setCustomers(data);
       }
     };
 
     fetchBookings();
+    fetchServices();
+    fetchCategories();
+    fetchCustomers();
   }, []);
+
+  const groupedBookings = bookings.reduce((acc: Record<string, Booking[]>, booking) => {
+    const service = services.find((s) => s.id === booking.service_id);
+    const category = categories.find((c) => c.id === service?.category_id);
+    const customer = customers.find((cust) => cust.id === booking.customer_id);
+    const categoryName = category ? category.name : 'Okänd kategori';
+
+    if (!acc[categoryName]) {
+      acc[categoryName] = [];
+    }
+    acc[categoryName].push({ ...booking, service, customer });
+    return acc;
+  }, {});
+
   return (
-    <div className={styles['table-container']}>
-      <div className={styles['table-wrapper']}>
-        {error && <p className="text-red-500 mb-4">{error}</p>}
-        <table>
-          <thead>
-            <tr>
-              <th>Kund</th>
-              <th>Tjänst</th>
-              <th>Datum</th>
-              <th>Tid</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {bookings.length ? bookings.map(booking => (
-              <tr key={booking.id}>
-                <td>{booking.customer_name}</td>
-                <td>{booking.service_name}</td>
-                <td>{booking.booking_date}</td>
-                <td>{`${booking.start_time} - ${booking.end_time}`}</td>
-                <td className={`status ${booking.status.toLowerCase()}`}>{booking.status}</td>
-              </tr>
-            )) : (
-              <tr>
-                <td colSpan={5} className="text-center text-gray-500">Inga bokningar tillgängliga.</td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+    <div className="w-full p-6 bg-white border border-gray-200 rounded-lg shadow-md">
+      <h2 className="text-2xl font-bold text-gray-800 mb-4">Bokningar</h2>
+      {error && <p className="text-red-500">{error}</p>}
+      {Object.keys(groupedBookings).length === 0 ? (
+        <p className="text-gray-600">Inga bokade tider just nu.</p>
+      ) : (
+        Object.keys(groupedBookings).map((categoryName) => (
+          <div key={categoryName} className="mb-6">
+            <h3 className="text-xl font-semibold text-blue-600 mb-2">{categoryName}</h3>
+            {groupedBookings[categoryName].map((booking) => (
+              <div key={booking.id} className="border rounded-lg p-4 mb-2 bg-gray-50 flex justify-between items-center hover:shadow-md transition-shadow">
+                <div>
+                  <p className="font-semibold text-gray-800">
+                    {booking.service?.name} - {booking.booking_date} kl. {booking.start_time} - {booking.end_time}
+                  </p>
+                  <p className="text-sm text-red-500">Bokad</p>
+                  <p className="text-sm text-gray-600">
+                    Kund: {booking.customer?.name} - Telefon: {booking.customer?.phone}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        ))
+      )}
     </div>
   );
 };
 
 export default BookingsTable;
+
+
+
+
+
+
 
 
 

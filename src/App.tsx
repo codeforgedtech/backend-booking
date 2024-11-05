@@ -5,8 +5,10 @@ import { Route, Routes } from 'react-router-dom';
 import DashboardPage from './pages/DashboardPage';
 import CustomerManager from './components/Customer/CustomerManager';
 import BookingForm from './components/Booking/BookingForm';
-import BookingTable from './components/Dashboard/BookingsTable';
+import Ava from './components/Dashboard/BookingsTable';
 import Navbar from './components/Navbar/Navbar';
+import AddAvailableSlotPage from './components/Dashboard/AddAvailableSlotPage';
+import Bookis from './components/Dashboard/AvailableSlotsManager';
 
 const App: React.FC = () => {
   return (
@@ -17,7 +19,8 @@ const App: React.FC = () => {
           <Route path="/" element={<DashboardPage />} />
           <Route path="/customers" element={<CustomerManager />} />
           <Route path="/addBooking" element={<BookingForm />} />
-          <Route path="/bookings" element={<BookingTable />} />
+          <Route path="/bookings" element={<Bookis />} />
+          <Route path="/add-slot" element={<AddAvailableSlotPage/>} />
         </Routes>
       </div>
     </div>

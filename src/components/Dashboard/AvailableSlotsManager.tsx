@@ -1,56 +1,50 @@
 // src/components/AddAvailableSlot.tsx
 
-import React, { useState } from 'react';
-import { supabase } from '../../supabaseClient'; // Se till att detta importerar din supabase klient
+import React from 'react';
+// Se till att detta importerar din supabase klient
+import BookingsTable from './BookingsTable';
+import BookingForm from '../Booking/BookingForm';
+import "./Bookis.scss";
+import CustomerManager from '../Customer/CustomerManager';
+const Bookis: React.FC = () => {
 
-const AddAvailableSlot: React.FC = () => {
-  const [date, setDate] = useState('');
-  const [time, setTime] = useState('');
-  const [serviceId, setServiceId] = useState('');
 
-  const handleAddSlot = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const { error } = await supabase
-      .from('available_slots')
-      .insert([{ date, time, service_id: serviceId, is_booked: false }]);
 
-    if (error) {
-      console.error('Error adding slot:', error);
-    } else {
-      alert('Ledig tid tillagd!');
-      setDate('');
-      setTime('');
-      setServiceId('');
-    }
-  };
 
   return (
-    <form onSubmit={handleAddSlot} className="flex flex-col space-y-4">
-      <input
-        type="date"
-        value={date}
-        onChange={(e) => setDate(e.target.value)}
-        required
-        className="border p-2"
-      />
-      <input
-        type="time"
-        value={time}
-        onChange={(e) => setTime(e.target.value)}
-        required
-        className="border p-2"
-      />
-      <input
-        type="text"
-        value={serviceId}
-        onChange={(e) => setServiceId(e.target.value)}
-        placeholder="Tjänst ID"
-        required
-        className="border p-2"
-      />
-      <button type="submit" className="bg-blue-500 text-white p-2">Lägg till ledig tid</button>
-    </form>
-  );
+<div className="dashboard-container">
+<h1 className="dashboard-title">Kontronpalen</h1>
+      
+      <div className="dashboard-grid">
+        {/* Kategori-hantering */}
+        <section className="dashboard-section">
+          <div className="section-header">
+         
+          
+          </div>
+          <BookingsTable />
+        </section>
+        
+        {/* Tjänst-hantering */}
+        <section className="dashboard-section">
+          <div className="section-header">
+           
+           
+          </div>
+          <BookingForm />
+        </section>
+        
+        {/* Lediga tider */}
+        <section className="dashboard-section">
+          <div className="section-header">
+          
+            <CustomerManager/>
+          </div>
+        
+        </section>
+      </div>
+    </div>
+ );
 };
 
-export default AddAvailableSlot;
+export default Bookis;

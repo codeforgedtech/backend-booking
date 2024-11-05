@@ -5,6 +5,7 @@ import { supabase } from '../../supabaseClient';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faEdit, faTrash, faInfoCircle, faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons';
 
+
 interface Service {
   id: string;
   name: string;
@@ -28,7 +29,7 @@ const ServiceManager: React.FC = () => {
   const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<boolean>(false);
-  const [expandedServiceId, setExpandedServiceId] = useState<string | null>(null); // Added state for expanded services
+  const [expandedServiceId, setExpandedServiceId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -63,13 +64,14 @@ const ServiceManager: React.FC = () => {
       return;
     }
 
+    const serviceData = { name, description, price, category_id: selectedCategoryId };
+
     if (selectedServiceId) {
-      // Update existing service
       const { error: supabaseError } = await supabase
         .from('services')
-        .update({ name, description, price, category_id: selectedCategoryId })
+        .update(serviceData)
         .eq('id', selectedServiceId);
-      
+
       if (supabaseError) {
         setError(supabaseError.message);
       } else {
@@ -78,11 +80,10 @@ const ServiceManager: React.FC = () => {
         fetchServices();
       }
     } else {
-      // Add new service
       const { error: supabaseError } = await supabase
         .from('services')
-        .insert([{ name, description, price, category_id: selectedCategoryId }]);
-      
+        .insert([serviceData]);
+
       if (supabaseError) {
         setError(supabaseError.message);
       } else {
@@ -114,7 +115,7 @@ const ServiceManager: React.FC = () => {
       .from('services')
       .delete()
       .eq('id', serviceId);
-    
+
     if (supabaseError) {
       setError(supabaseError.message);
     } else {
@@ -132,8 +133,8 @@ const ServiceManager: React.FC = () => {
         <FontAwesomeIcon icon={faInfoCircle} className="mr-2 text-blue-500" />
         Hantera Tjänster
       </h2>
-      <form onSubmit={handleAddOrUpdateService}>
-        <div className="mb-4">
+      <form onSubmit={handleAddOrUpdateService} className="space-y-4">
+        <div>
           <label className="block mb-1 text-gray-700">Namn:</label>
           <input
             type="text"
@@ -143,7 +144,7 @@ const ServiceManager: React.FC = () => {
             required
           />
         </div>
-        <div className="mb-4">
+        <div>
           <label className="block mb-1 text-gray-700">Beskrivning:</label>
           <textarea
             value={description}
@@ -153,7 +154,7 @@ const ServiceManager: React.FC = () => {
             required
           />
         </div>
-        <div className="mb-4">
+        <div>
           <label className="block mb-1 text-gray-700">Pris:</label>
           <input
             type="number"
@@ -163,7 +164,7 @@ const ServiceManager: React.FC = () => {
             required
           />
         </div>
-        <div className="mb-4">
+        <div>
           <label className="block mb-1 text-gray-700">Kategori:</label>
           <select
             value={selectedCategoryId || ''}
@@ -192,7 +193,7 @@ const ServiceManager: React.FC = () => {
       {services.length === 0 ? (
         <p>Inga tjänster tillgängliga.</p>
       ) : (
-        <ul className="list-disc pl-5">
+        <ul className="list-disc pl-5 space-y-2">
           {services.map((service) => (
             <li key={service.id} className="flex flex-col mb-2 bg-gray-100 p-4 rounded-md shadow-sm">
               <div className="flex justify-between items-center cursor-pointer" onClick={() => handleToggleExpand(service.id)}>
@@ -209,17 +210,15 @@ const ServiceManager: React.FC = () => {
               <div className="flex space-x-2 mt-2">
                 <button
                   onClick={() => handleEdit(service)}
-                  className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition duration-200 flex items-center"
+                  className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition duration-200"
                 >
-                  <FontAwesomeIcon icon={faEdit} className="mr-1" />
-                  Redigera
+                  <FontAwesomeIcon icon={faEdit} />
                 </button>
                 <button
                   onClick={() => handleDelete(service.id)}
-                  className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition duration-200 flex items-center"
+                  className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition duration-200"
                 >
-                  <FontAwesomeIcon icon={faTrash} className="mr-1" />
-                  Ta bort
+                  <FontAwesomeIcon icon={faTrash} />
                 </button>
               </div>
             </li>
@@ -231,6 +230,7 @@ const ServiceManager: React.FC = () => {
 };
 
 export default ServiceManager;
+
 
 
 

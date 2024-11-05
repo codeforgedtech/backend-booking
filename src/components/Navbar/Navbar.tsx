@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHome, faCog, faClipboardList, faUser, faBook, faPeopleGroup } from '@fortawesome/free-solid-svg-icons';
+import { faHome, faCog, faClipboardList, faUser, faBook, faPeopleGroup, faTimes, faClock } from '@fortawesome/free-solid-svg-icons';
 import './Navbar.scss';
 
 const Navbar: React.FC = () => {
@@ -41,6 +41,12 @@ const Navbar: React.FC = () => {
           <Link to="/categories" className="hover:text-gray-300">
             <FontAwesomeIcon icon={faClipboardList} className="icon" />
             Kategorier
+          </Link>
+        </li>
+        <li>
+          <Link to="/add-slot" className="hover:text-gray-300">
+            <FontAwesomeIcon icon={faClock} className="icon" />
+            Lägg till ledig tid
           </Link>
         </li>
         <li>

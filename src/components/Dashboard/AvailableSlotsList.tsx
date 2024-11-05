@@ -29,16 +29,14 @@ const AvailableSlotsList: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<boolean>(false);
-  const [newSlotDate, setNewSlotDate] = useState('');
-  const [newSlotStartTime, setNewSlotStartTime] = useState('');
-  const [newSlotEndTime, setNewSlotEndTime] = useState('');
-  const [newSlotServiceId, setNewSlotServiceId] = useState<string | null>(null);
+ 
 
   useEffect(() => {
     const fetchSlots = async () => {
       const { data, error } = await supabase
         .from('available_slots')
-        .select('*');
+        .select('*')
+        .eq('is_booked', true); // Filter to get only booked slots
 
       if (error) {
         console.error('Error fetching slots:', error);
@@ -70,37 +68,7 @@ const AvailableSlotsList: React.FC = () => {
     fetchCategories();
   }, []);
 
-  const handleAddSlot = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setSuccess(false);
 
-    if (!newSlotDate || !newSlotStartTime || !newSlotEndTime || !newSlotServiceId) {
-      setError('Vänligen fyll i alla fält.');
-      return;
-    }
-
-    const { error } = await supabase
-      .from('available_slots')
-      .insert([{ 
-        date: newSlotDate, 
-        start_time: newSlotStartTime, 
-        end_time: newSlotEndTime, 
-        service_id: newSlotServiceId,
-        is_booked: false 
-      }]);
-
-    if (error) {
-      setError(error.message);
-    } else {
-      setSuccess(true);
-      setNewSlotDate('');
-      setNewSlotStartTime('');
-      setNewSlotEndTime('');
-      setNewSlotServiceId(null);
-      fetchSlots();
-    }
-  };
 
   const groupedSlots = slots.reduce((acc: Record<string, Slot[]>, slot) => {
     const service = services.find((s) => s.id === slot.service_id);
@@ -115,12 +83,13 @@ const AvailableSlotsList: React.FC = () => {
   }, {});
 
   return (
+    
     <div className="max-w-2xl mx-auto p-6 bg-white border border-gray-200 rounded-lg shadow-md mb-66">
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">Lediga Tider</h2>
+      <h2 className="text-2xl font-bold text-gray-800 mb-4">Bokningar</h2>
       {error && <p className="text-red-500">{error}</p>}
       {success && <p className="text-green-500">Tiden har lagts till!</p>}
       {Object.keys(groupedSlots).length === 0 ? (
-        <p className="text-gray-600">Inga lediga tider just nu.</p>
+        <p className="text-gray-600">Inga bokade tider just nu.</p>
       ) : (
         Object.keys(groupedSlots).map((categoryName) => (
           <div key={categoryName} className="mb-6">
@@ -131,73 +100,18 @@ const AvailableSlotsList: React.FC = () => {
                   <p className="font-semibold text-gray-800">
                     {slot.service?.name} - {slot.date} kl. {slot.start_time} - {slot.end_time}
                   </p>
-                  <p className={`text-sm ${slot.is_booked ? 'text-red-500' : 'text-green-500'}`}>
-                    {slot.is_booked ? 'Bokad' : 'Ledig'}
-                  </p>
+                  <p className="text-sm text-red-500">Bokad</p>
                 </div>
               </div>
             ))}
           </div>
         ))
       )}
-
-      <h3 className="text-xl font-semibold text-gray-800 mt-6">Lägg till Ledig Tid</h3>
-      <form onSubmit={handleAddSlot} className="mb-4">
-        <div className="mb-4">
-          <label className="block mb-1 text-gray-700">Datum:</label>
-          <input
-            type="date"
-            value={newSlotDate}
-            onChange={(e) => setNewSlotDate(e.target.value)}
-            className="border border-gray-300 rounded w-full p-2 transition duration-200 focus:outline-none focus:border-blue-500 focus:ring focus:ring-blue-200"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block mb-1 text-gray-700">Starttid:</label>
-          <input
-            type="time"
-            value={newSlotStartTime}
-            onChange={(e) => setNewSlotStartTime(e.target.value)}
-            className="border border-gray-300 rounded w-full p-2 transition duration-200 focus:outline-none focus:border-blue-500 focus:ring focus:ring-blue-200"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block mb-1 text-gray-700">Sluttid:</label>
-          <input
-            type="time"
-            value={newSlotEndTime}
-            onChange={(e) => setNewSlotEndTime(e.target.value)}
-            className="border border-gray-300 rounded w-full p-2 transition duration-200 focus:outline-none focus:border-blue-500 focus:ring focus:ring-blue-200"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block mb-1 text-gray-700">Tjänst:</label>
-          <select
-            value={newSlotServiceId || ''}
-            onChange={(e) => setNewSlotServiceId(e.target.value)}
-            className="border border-gray-300 rounded w-full p-2 transition duration-200 focus:outline-none focus:border-blue-500 focus:ring focus:ring-blue-200"
-            required
-          >
-            <option value="" disabled>Välj tjänst</option>
-            {services.map((service) => (
-              <option key={service.id} value={service.id}>{service.name}</option>
-            ))}
-          </select>
-        </div>
-        <button
-          type="submit"
-          className="w-full bg-green-500 text-white p-3 rounded-lg hover:bg-green-600 transition duration-200"
-        >
-          Lägg till Ledig Tid
-        </button>
-      </form>
     </div>
   );
 };
 
 export default AvailableSlotsList;
+
 
 
