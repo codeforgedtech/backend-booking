@@ -6,6 +6,8 @@ import BookingsTable from './BookingsTable';
 import BookingForm from '../Booking/BookingForm';
 import "./Bookis.scss";
 import CustomerManager from '../Customer/CustomerManager';
+import AddAvailableSlotPage from './AddAvailableSlotPage';
+import AvailableSlotsList from './AvailableSlotsList';
 const Bookis: React.FC = () => {
 
 
@@ -32,6 +34,7 @@ const Bookis: React.FC = () => {
            
           </div>
           <BookingForm />
+          <AvailableSlotsList/>
         </section>
         
         {/* Lediga tider */}

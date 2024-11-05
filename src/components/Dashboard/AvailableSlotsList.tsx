@@ -29,14 +29,14 @@ const AvailableSlotsList: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<boolean>(false);
- 
 
   useEffect(() => {
     const fetchSlots = async () => {
+      // Fetch available slots (not booked)
       const { data, error } = await supabase
         .from('available_slots')
         .select('*')
-        .eq('is_booked', true); // Filter to get only booked slots
+        .eq('is_booked', false); // Change here to fetch only available slots
 
       if (error) {
         console.error('Error fetching slots:', error);
@@ -68,13 +68,11 @@ const AvailableSlotsList: React.FC = () => {
     fetchCategories();
   }, []);
 
-
-
   const groupedSlots = slots.reduce((acc: Record<string, Slot[]>, slot) => {
     const service = services.find((s) => s.id === slot.service_id);
     const category = categories.find((c) => c.id === service?.category_id);
     const categoryName = category ? category.name : 'Okänd kategori';
-    
+
     if (!acc[categoryName]) {
       acc[categoryName] = [];
     }
@@ -83,13 +81,12 @@ const AvailableSlotsList: React.FC = () => {
   }, {});
 
   return (
-    
-    <div className="max-w-2xl mx-auto p-6 bg-white border border-gray-200 rounded-lg shadow-md mb-66">
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">Bokningar</h2>
+    <div className="max-w-2xl mx-auto p-6 bg-white border border-gray-200 rounded-lg shadow-md mb-6">
+      <h2 className="text-2xl font-bold text-gray-800 mb-4">Tillgängliga Tider</h2> {/* Updated title */}
       {error && <p className="text-red-500">{error}</p>}
       {success && <p className="text-green-500">Tiden har lagts till!</p>}
       {Object.keys(groupedSlots).length === 0 ? (
-        <p className="text-gray-600">Inga bokade tider just nu.</p>
+        <p className="text-gray-600">Inga tillgängliga tider just nu.</p>
       ) : (
         Object.keys(groupedSlots).map((categoryName) => (
           <div key={categoryName} className="mb-6">
@@ -100,7 +97,7 @@ const AvailableSlotsList: React.FC = () => {
                   <p className="font-semibold text-gray-800">
                     {slot.service?.name} - {slot.date} kl. {slot.start_time} - {slot.end_time}
                   </p>
-                  <p className="text-sm text-red-500">Bokad</p>
+                  <p className="text-sm text-green-500">Tillgänglig</p> {/* Updated status */}
                 </div>
               </div>
             ))}
@@ -112,6 +109,7 @@ const AvailableSlotsList: React.FC = () => {
 };
 
 export default AvailableSlotsList;
+
 
 
 
