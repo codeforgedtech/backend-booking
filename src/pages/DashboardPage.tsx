@@ -8,7 +8,7 @@ import './styles.scss';
 const DashboardPage: React.FC = () => {
   return (
     <div className="dashboard-container">
-      <h1 className="dashboard-title">Kontronpalen</h1>
+      <h1 className="dashboard-title"></h1>
       
       <div className="dashboard-grid">
         {/* Kategori-hantering */}

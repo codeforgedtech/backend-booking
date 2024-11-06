@@ -6,7 +6,7 @@ import BookingsTable from './BookingsTable';
 import BookingForm from '../Booking/BookingForm';
 import "./Bookis.scss";
 import CustomerManager from '../Customer/CustomerManager';
-import AddAvailableSlotPage from './AddAvailableSlotPage';
+
 import AvailableSlotsList from './AvailableSlotsList';
 const Bookis: React.FC = () => {
 
@@ -15,7 +15,7 @@ const Bookis: React.FC = () => {
 
   return (
 <div className="dashboard-container">
-<h1 className="dashboard-title">Kontronpalen</h1>
+<h1 className="dashboard-title"></h1>
       
       <div className="dashboard-grid">
         {/* Kategori-hantering */}
