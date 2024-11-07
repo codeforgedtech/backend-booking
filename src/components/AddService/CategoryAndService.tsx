@@ -1,13 +1,10 @@
-// src/components/AddAvailableSlot.tsx
-
 import React from "react";
 // Se till att detta importerar din supabase klient
-import BookingsTable from "./BookingsTable";
-import BookingForm from "../Booking/BookingForm";
-import "./Bookis.scss";
-import CustomerManager from "../Customer/CustomerManager";
+import AddCategory from "./AddCategory";
+import ServicesManager from "../Dashboard/ServicesManager";
+import AddTime from "../Dashboard/AddAvailableSlotPage";
+import "./CategoryAndService.scss";
 
-import AvailableSlotsList from "./AvailableSlotsList";
 const Bookis: React.FC = () => {
   return (
     <div className="dashboard-container">
@@ -17,21 +14,19 @@ const Bookis: React.FC = () => {
         {/* Kategori-hantering */}
         <section className="dashboard-section">
           <div className="section-header"></div>
-          <BookingsTable />
+          <AddCategory />
         </section>
 
         {/* Tjänst-hantering */}
         <section className="dashboard-section">
           <div className="section-header"></div>
-          <BookingForm />
-          <AvailableSlotsList />
+          <ServicesManager />
         </section>
 
         {/* Lediga tider */}
         <section className="dashboard-section">
-          <div className="section-header">
-            <CustomerManager />
-          </div>
+          <div className="section-header"></div>
+          <AddTime />
         </section>
       </div>
     </div>

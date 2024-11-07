@@ -5,29 +5,38 @@ import { Route, Routes } from 'react-router-dom';
 import DashboardPage from './pages/DashboardPage';
 import CustomerManager from './components/Customer/CustomerManager';
 import BookingForm from './components/Booking/BookingForm';
-import Ava from './components/Dashboard/BookingsTable';
+import Category from './components/AddService/CategoryAndService'
 import Navbar from './components/Navbar/Navbar';
 import AddAvailableSlotPage from './components/Dashboard/AddAvailableSlotPage';
 import Bookis from './components/Dashboard/AvailableSlotsManager';
+import ProtectRoute from './components/Authentication/ProtectedRoute'; // Import ProtectRoute
+import LoginModal from './components/Authentication/LoginModal'; // Assuming LoginModal is your login page component
 
 const App: React.FC = () => {
   return (
     <div>
-      <Navbar />
-      <div>
-        <Routes>
-          <Route path="/" element={<DashboardPage />} />
-          <Route path="/customers" element={<CustomerManager />} />
-          <Route path="/addBooking" element={<BookingForm />} />
-          <Route path="/bookings" element={<Bookis />} />
-          <Route path="/add-slot" element={<AddAvailableSlotPage/>} />
-        </Routes>
-      </div>
+      <Routes>
+        {/* Public Route */}
+        <Route path="/login" element={<LoginModal />} />
+
+        {/* Protected Routes */}
+        <Route element={<ProtectRoute />}>
+          {/* Navbar only displays for authenticated users */}
+          <Route path="/" element={<><Navbar /><DashboardPage /></>} />
+          <Route path="/customers" element={<><Navbar /><CustomerManager /></>} />
+          <Route path="/addBooking" element={<><Navbar /><BookingForm /></>} />
+          <Route path="/categories" element={<><Navbar /><Category /></>} />
+          <Route path="/bookings" element={<><Navbar /><Bookis /></>} />
+          <Route path="/add-slot" element={<><Navbar /><AddAvailableSlotPage /></>} />
+        </Route>
+      </Routes>
     </div>
   );
 };
 
 export default App;
+
+
 
 
 

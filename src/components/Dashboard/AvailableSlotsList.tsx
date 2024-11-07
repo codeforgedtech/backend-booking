@@ -68,47 +68,65 @@ const AvailableSlotsList: React.FC = () => {
     fetchCategories();
   }, []);
 
-  const groupedSlots = slots.reduce((acc: Record<string, Slot[]>, slot) => {
-    const service = services.find((s) => s.id === slot.service_id);
-    const category = categories.find((c) => c.id === service?.category_id);
-    const categoryName = category ? category.name : 'Okänd kategori';
-
-    if (!acc[categoryName]) {
-      acc[categoryName] = [];
+  // Group slots by date for calendar layout
+  const groupedSlotsByDate = slots.reduce((acc: Record<string, Slot[]>, slot) => {
+    if (!acc[slot.date]) {
+      acc[slot.date] = [];
     }
-    acc[categoryName].push({ ...slot, service });
+    acc[slot.date].push(slot);
     return acc;
   }, {});
+
+  // Helper function to format date into a readable format
+  const formatDate = (date: string) => {
+    const options: Intl.DateTimeFormatOptions = { weekday: 'short', day: 'numeric', month: 'short' };
+    return new Date(date).toLocaleDateString('sv-SE', options);
+  };
 
   return (
     <div className="max-w-2xl mx-auto p-6 bg-white border border-gray-200 rounded-lg shadow-md mb-6">
       <h2 className="text-2xl font-bold text-gray-800 mb-4">Tillgängliga Tider</h2> {/* Updated title */}
       {error && <p className="text-red-500">{error}</p>}
       {success && <p className="text-green-500">Tiden har lagts till!</p>}
-      {Object.keys(groupedSlots).length === 0 ? (
-        <p className="text-gray-600">Inga tillgängliga tider just nu.</p>
-      ) : (
-        Object.keys(groupedSlots).map((categoryName) => (
-          <div key={categoryName} className="mb-6">
-            <h3 className="text-xl font-semibold text-blue-600 mb-2">{categoryName}</h3>
-            {groupedSlots[categoryName].map((slot) => (
-              <div key={slot.id} className="border rounded-lg p-4 mb-2 bg-gray-50 flex justify-between items-center hover:shadow-md transition-shadow">
-                <div>
-                  <p className="font-semibold text-gray-800">
-                    {slot.service?.name} - {slot.date} kl. {slot.start_time} - {slot.end_time}
-                  </p>
-                  <p className="text-sm text-green-500">Tillgänglig</p> {/* Updated status */}
+      
+      {/* Display Calendar-like Grid */}
+      <div className="grid grid-cols-7 gap-4">
+        {/* Generate Calendar Header */}
+        {['Sön', 'Mån', 'Tis', 'Ons', 'Tor', 'Fre', 'Lör'].map((day) => (
+          <div key={day} className="text-center font-semibold text-gray-700">{day}</div>
+        ))}
+
+        {/* Render the slots grouped by date */}
+        {Object.keys(groupedSlotsByDate).length === 0 ? (
+          <p className="col-span-7 text-gray-600">Inga tillgängliga tider just nu.</p>
+        ) : (
+          Object.keys(groupedSlotsByDate).map((date) => {
+            const daySlots = groupedSlotsByDate[date];
+            const dayFormatted = formatDate(date);
+            return (
+              <div key={date} className="flex flex-col items-center border p-2 bg-gray-50 rounded-lg">
+                <p className="text-sm font-medium text-gray-600">{dayFormatted}</p>
+                <div className="space-y-2 mt-2">
+                  {daySlots.map((slot) => (
+                    <div key={slot.id} className="bg-white rounded-lg p-2 shadow-sm hover:shadow-md">
+                      <p className="font-semibold text-gray-800">
+                        {slot.start_time} - {slot.end_time}
+                      </p>
+                      <p className="text-sm text-green-500">Tillgänglig</p>
+                    </div>
+                  ))}
                 </div>
               </div>
-            ))}
-          </div>
-        ))
-      )}
+            );
+          })
+        )}
+      </div>
     </div>
   );
 };
 
 export default AvailableSlotsList;
+
 
 
 
