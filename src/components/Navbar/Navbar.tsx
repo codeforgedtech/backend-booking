@@ -50,12 +50,7 @@ const Navbar: React.FC = () => {
             Kategorier
           </Link>
         </li>
-        <li>
-          <Link to="/add-slot" className="hover:text-gray-300" onClick={() => setIsMobileMenuOpen(false)}>
-            <FontAwesomeIcon icon={faClock} className="icon" />
-            Lägg till ledig tid
-          </Link>
-        </li>
+
         {/* Profile Dropdown */}
         <li className="relative">
           <button onClick={toggleProfileDropdown} className="hover:text-gray-300">

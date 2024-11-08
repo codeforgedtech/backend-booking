@@ -21,12 +21,19 @@ interface AvailableSlot {
   is_booked: boolean;
 }
 
+interface Employee {
+  id: string;
+  name: string;
+}
+
 const BookingForm: React.FC = () => {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [services, setServices] = useState<Service[]>([]);
+  const [employees, setEmployees] = useState<Employee[]>([]); // Ny state för medarbetare
   const [availableSlots, setAvailableSlots] = useState<AvailableSlot[]>([]);
   const [selectedCustomer, setSelectedCustomer] = useState<string>('');
   const [selectedService, setSelectedService] = useState<string>('');
+  const [selectedEmployee, setSelectedEmployee] = useState<string>(''); // State för vald medarbetare
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [selectedSlot, setSelectedSlot] = useState<AvailableSlot | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -34,6 +41,7 @@ const BookingForm: React.FC = () => {
   useEffect(() => {
     fetchCustomers();
     fetchServices();
+    fetchEmployees(); // Hämta medarbetare vid komponentladdning
   }, []);
 
   useEffect(() => {
@@ -54,31 +62,47 @@ const BookingForm: React.FC = () => {
     else setServices(data);
   };
 
+  const fetchEmployees = async () => {
+    const { data, error } = await supabase.from('users').select('*');
+    if (error) console.error('Fel vid hämtning av medarbetare:', error);
+    else setEmployees(data);
+  };
+
   const fetchAvailableSlots = async () => {
     if (selectedService && selectedDate) {
-      const { data, error } = await supabase
-        .from('available_slots')
-        .select('*')
-        .eq('service_id', selectedService)
-        .eq('date', selectedDate)
-        .eq('is_booked', false);
+      try {
+        // Omvandla selectedDate till rätt format om nödvändigt
+        const formattedDate = selectedDate; // Formatera om det behövs, ex. YYYY-MM-DD
 
-      if (error) {
-        console.error('Fel vid hämtning av lediga tider:', error);
-        setErrorMessage('Fel vid hämtning av lediga tider.');
-      } else if (data.length === 0) {
-        setErrorMessage('Inga lediga tider tillgängliga för valt datum och tjänst.');
-        setAvailableSlots([]);
-      } else {
-        setErrorMessage(null);
-        setAvailableSlots(data);
+        const { data, error } = await supabase
+          .from('available_slots')
+          .select('*')
+          .eq('service_id', selectedService)
+          .eq('date', formattedDate)
+          .eq('is_booked', false);
+
+        if (error) {
+          console.error('Fel vid hämtning av lediga tider:', error);
+          setErrorMessage('Fel vid hämtning av lediga tider.');
+          setAvailableSlots([]); // Sätt till tom lista om fel uppstår
+        } else if (data.length === 0) {
+          setErrorMessage('Inga lediga tider tillgängliga för valt datum och tjänst.');
+          setAvailableSlots([]);
+        } else {
+          setErrorMessage(null);
+          setAvailableSlots(data);
+        }
+      } catch (error) {
+        console.error('Ett oväntat fel inträffade:', error);
+        setErrorMessage('Ett oväntat fel inträffade vid hämtning av lediga tider.');
       }
     }
   };
 
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!selectedSlot || !selectedCustomer) return; // Kontrollera att både slot och kund är valda
+    if (!selectedSlot || !selectedCustomer || !selectedEmployee) return; // Kontrollera att slot, kund och medarbetare är valda
 
     // 1. Uppdatera tillgänglig tid för att markera den som bokad
     const { error: updateError } = await supabase
@@ -87,36 +111,36 @@ const BookingForm: React.FC = () => {
       .eq('id', selectedSlot.id);
 
     if (updateError) {
-        console.error('Fel vid bokning av tjänst:', updateError);
-        alert('Bokning misslyckades. Försök igen.');
-        return; // Avbryt om uppdateringen misslyckas
+      console.error('Fel vid bokning av tjänst:', updateError);
+      alert('Bokning misslyckades. Försök igen.');
+      return;
     }
 
     // 2. Infoga en ny bokning i bokningstabellen
-    const { error: insertError } = await supabase
-    .from('bookings')
-    .insert({
-        customer_id: selectedCustomer,
-        service_id: selectedService,
-        booking_date: selectedDate,
-        start_time: selectedSlot.start_time,
-        end_time: selectedSlot.end_time,
-        status: 'Confirmed', // Använd giltigt status
-        created_at: new Date().toISOString(), // Sätter nuvarande tid som skapad tid
+    const { error: insertError } = await supabase.from('bookings').insert({
+      customer_id: selectedCustomer,
+      service_id: selectedService,
+      employee_id: selectedEmployee, // Lägg till medarbetarens ID i bokningen
+      booking_date: selectedDate,
+      start_time: selectedSlot.start_time,
+      end_time: selectedSlot.end_time,
+      status: 'Confirmed',
+      created_at: new Date().toISOString(),
     });
 
     if (insertError) {
-        console.error('Fel vid skapande av bokning:', insertError);
-        alert('Bokning misslyckades. Försök igen.');
+      console.error('Fel vid skapande av bokning:', insertError);
+      alert('Bokning misslyckades. Försök igen.');
     } else {
-        alert('Bokning lyckades!');
-        resetForm(); // Rensa formuläret vid lyckad bokning
+      alert('Bokning lyckades!');
+      resetForm();
     }
-};
+  };
 
   const resetForm = () => {
     setSelectedCustomer('');
     setSelectedService('');
+    setSelectedEmployee(''); // Rensa valt medarbetare
     setSelectedDate('');
     setAvailableSlots([]);
     setSelectedSlot(null);
@@ -134,9 +158,7 @@ const BookingForm: React.FC = () => {
         <select
           className="form-select"
           value={selectedCustomer}
-          onChange={(e) => {
-            setSelectedCustomer(e.target.value);
-          }}
+          onChange={(e) => setSelectedCustomer(e.target.value)}
         >
           <option value="">Välj kund</option>
           {customers.map((customer) => (
@@ -154,14 +176,30 @@ const BookingForm: React.FC = () => {
           value={selectedService}
           onChange={(e) => {
             setSelectedService(e.target.value);
-            setAvailableSlots([]); // Rensa tillgängliga tider när tjänst ändras
-            setSelectedSlot(null); // Rensa valt slot
+            setAvailableSlots([]);
+            setSelectedSlot(null);
           }}
         >
           <option value="">Välj tjänst</option>
           {services.map((service) => (
             <option key={service.id} value={service.id}>
               {service.name}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      <label className="form-label">
+        Medarbetare
+        <select
+          className="form-select"
+          value={selectedEmployee}
+          onChange={(e) => setSelectedEmployee(e.target.value)}
+        >
+          <option value="">Välj medarbetare</option>
+          {employees.map((employee) => (
+            <option key={employee.id} value={employee.id}>
+              {employee.name}
             </option>
           ))}
         </select>
@@ -175,8 +213,8 @@ const BookingForm: React.FC = () => {
           value={selectedDate}
           onChange={(e) => {
             setSelectedDate(e.target.value);
-            setAvailableSlots([]); // Rensa tillgängliga tider när datum ändras
-            setSelectedSlot(null); // Rensa valt slot
+            setAvailableSlots([]);
+            setSelectedSlot(null);
           }}
         />
       </label>
@@ -203,7 +241,7 @@ const BookingForm: React.FC = () => {
       <button
         type="submit"
         className="submit-button"
-        disabled={!selectedSlot || !selectedCustomer} // Inaktivera knappen om ingen kund eller slot är valt
+        disabled={!selectedSlot || !selectedCustomer || !selectedEmployee} // Inaktivera om inte alla val är gjorda
       >
         Boka nu
       </button>
@@ -212,6 +250,7 @@ const BookingForm: React.FC = () => {
 };
 
 export default BookingForm;
+
 
 
 

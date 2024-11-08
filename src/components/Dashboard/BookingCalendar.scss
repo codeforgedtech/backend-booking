@@ -1,0 +1,96 @@
+/* Månadsnamn (t.ex., Jan, Feb) */
+.react-calendar__navigation__label {
+    color: white; /* Mörkgrå textfärg för månadsnamn */
+    
+    font-size: 1.1rem;
+    font-weight: bold;
+    padding: 8px; /* Justera padding för en kompakt look */
+    border-radius: 4px;
+  }
+  
+  /* Kalenderkomponentens bakgrund och kanter */
+  .react-calendar {
+    background-color:#2b6cb0; /* Vit bakgrund för helheten */
+    border: 1px solid #cbd5e0;  /* Ljusgrå kant */
+    border-radius: 8px; /* Rundade hörn för modern look */
+    /* Lätt skugga */
+  }
+  
+  /* Veckodagar */
+  .react-calendar__month-view__weekdays {
+    background-color: #2b6cb0; /* Mörkblå bakgrund för veckodagar */
+    color: #edf2f7; /* Vit text för bättre kontrast */
+  }
+  
+  /* Veckodagsnamn */
+  .react-calendar__month-view__weekdays__weekday {
+    color: #edf2f7; /* Vit text */
+    background-color: #2b6cb0; /* Matchande mörkblå bakgrund */
+    font-weight: 500;
+  }
+  
+  /* Dagar */
+  .react-calendar__tile {
+    background-color: #ffffff; /* Vit bakgrund */
+    color: #2d3748; /* Mörk text */
+    padding: 8px;
+    font-weight: 500;
+    border-radius: 0px;
+  }
+  
+  /* Hover-effekt på datum */
+  .react-calendar__tile:hover {
+    background-color: blue; /* Ljusgrön bakgrund vid hover */
+    color: white; /* Mörkare grön text */
+    transition: background-color 0.2s ease;
+  }
+  
+  /* Aktivt datum (valt) */
+  .react-calendar__tile--active {
+    background-color: #48bb78; /* Grön för vald dag */
+    color: white; /* Vit text för kontrast */
+  }
+  
+  /* Navigationens enkelpilar (föregående/nästa månad) */
+  .react-calendar__navigation__prev-button,
+  .react-calendar__navigation__next-button {
+    color: #2d3748; /* Mörkgrå text */
+    background-color: #edf2f7; /* Ljus bakgrund */
+    /* Rundade pilar */
+    border: none;
+    padding: 8px;
+  }
+  
+  /* Navigationens dubbelpilar (föregående/nästa år) */
+  .react-calendar__navigation__double-prev-button,
+  .react-calendar__navigation__double-next-button {
+    color: #2d3748; /* Mörkgrå text */
+    background-color: #bee3f8; /* Ljusare blå bakgrund för års-pilar */
+   
+    border: none;
+    padding: 8px;
+  }
+  
+  /* Hover-effekter för enkelpilar */
+  .react-calendar__navigation__prev-button:hover,
+  .react-calendar__navigation__next-button:hover {
+    background-color: black; /* Mörkare grå vid hover */
+    color: #48bb78;
+  }
+  
+  /* Hover-effekter för dubbelpilar */
+  .react-calendar__navigation__double-prev-button:hover,
+  .react-calendar__navigation__double-next-button:hover {
+    background-color: #90cdf4; /* Mörkare blå vid hover för års-pilar */
+    color: #2d3748;
+  }
+  
+  /* Inaktiverade pilar */
+  .react-calendar__navigation__prev-button[disabled],
+  .react-calendar__navigation__next-button[disabled],
+  .react-calendar__navigation__double-prev-button[disabled],
+  .react-calendar__navigation__double-next-button[disabled] {
+    color: #a0aec0; /* Ljusgrå text för inaktiverade pilar */
+    background-color: #edf2f7; /* Ljusare grå bakgrund */
+  }
+  

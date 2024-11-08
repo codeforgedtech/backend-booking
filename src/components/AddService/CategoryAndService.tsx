@@ -4,6 +4,7 @@ import AddCategory from "./AddCategory";
 import ServicesManager from "../Dashboard/ServicesManager";
 import AddTime from "../Dashboard/AddAvailableSlotPage";
 import "./CategoryAndService.scss";
+import AvailableSlotsList from "../Dashboard/AvailableSlotsList";
 
 const Bookis: React.FC = () => {
   return (
@@ -26,6 +27,7 @@ const Bookis: React.FC = () => {
         {/* Lediga tider */}
         <section className="dashboard-section">
           <div className="section-header"></div>
+          <AvailableSlotsList/>
           <AddTime />
         </section>
       </div>

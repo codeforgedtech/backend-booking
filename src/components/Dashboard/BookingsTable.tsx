@@ -5,7 +5,8 @@ interface Booking {
   id: string;
   customer_id: string | null;
   service_id: string | null;
-  booking_date: string; // Adjusted from date to string format
+  employee_id: string | null; // Lägg till employee_id för att koppla till användare
+  booking_date: string;
   start_time: string;
   end_time: string;
   status: string;
@@ -31,19 +32,25 @@ interface Category {
   name: string;
 }
 
+interface User {  // Ändra till att hämta användare från users-tabellen
+  id: string;
+  display_name: string;
+}
+
 const BookingsTable: React.FC = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const [users, setUsers] = useState<User[]>([]); // Hämta användare istället för employees
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchBookings = async () => {
       const { data, error } = await supabase
-        .from('bookings') // Change to bookings table
+        .from('bookings') // Bokningar
         .select('*')
-        .eq('status', 'Confirmed'); // Filter to get only confirmed bookings
+        .eq('status', 'Confirmed'); // Endast bekräftade bokningar
 
       if (error) {
         console.error('Error fetching bookings:', error);
@@ -80,22 +87,37 @@ const BookingsTable: React.FC = () => {
       }
     };
 
+    const fetchUsers = async () => {
+      const { data, error } = await supabase.from('users').select('*'); // Hämtar användare
+      if (error) {
+        console.error('Error fetching users:', error);
+      } else {
+        setUsers(data);
+      }
+    };
+
     fetchBookings();
     fetchServices();
     fetchCategories();
     fetchCustomers();
+    fetchUsers(); // Hämta användare
   }, []);
 
   const groupedBookings = bookings.reduce((acc: Record<string, Booking[]>, booking) => {
     const service = services.find((s) => s.id === booking.service_id);
     const category = categories.find((c) => c.id === service?.category_id);
     const customer = customers.find((cust) => cust.id === booking.customer_id);
+    const user = users.find((usr) => usr.id === booking.employee_id); // Hämta användare baserat på employee_id
+
+    // Logga för att kontrollera vad vi får
+    console.log(`Bokning ID: ${booking.id}, Employee ID: ${booking.employee_id}, Found User:`, user);
+
     const categoryName = category ? category.name : 'Okänd kategori';
 
     if (!acc[categoryName]) {
       acc[categoryName] = [];
     }
-    acc[categoryName].push({ ...booking, service, customer });
+    acc[categoryName].push({ ...booking, service, customer, user }); // Lägg till användaren till bokningen
     return acc;
   }, {});
 
@@ -119,6 +141,9 @@ const BookingsTable: React.FC = () => {
                   <p className="text-sm text-gray-600">
                     Kund: {booking.customer?.name} - Telefon: {booking.customer?.phone}
                   </p>
+                  <p className="text-sm text-gray-600">
+                    Utförare: {booking.user?.display_name || 'Ej tilldelad'}
+                  </p> {/* Visa vem som är utövare */}
                 </div>
               </div>
             ))}
@@ -130,6 +155,9 @@ const BookingsTable: React.FC = () => {
 };
 
 export default BookingsTable;
+
+
+
 
 
 
