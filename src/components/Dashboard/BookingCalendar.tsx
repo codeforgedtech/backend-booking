@@ -99,43 +99,43 @@ const BookingCalendar: React.FC = () => {
   };
 
   return (
-    <div className="w-full p-6 bg-white border border-gray-200 rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center">
-        Bokningar för {selectedDate.toLocaleDateString()}
-      </h2>
-      
-      <div className="flex justify-center mb-6">
-        <Calendar
-          onChange={handleDateChange}
-          value={selectedDate}
-          tileClassName="calendar-tile"
-          className="react-calendar"
-        />
-      </div>
-
-      {selectedBookings.length === 0 ? (
-        <p className="text-gray-600 text-center">Inga bokningar för den här dagen.</p>
-      ) : (
-        <div>
-          {selectedBookings.map((booking) => (
-            <div
-              key={booking.id}
-              className="border rounded-lg p-4 mb-2 bg-gray-100 hover:bg-gray-200 transition-all flex justify-between items-center"
-            >
-              <div>
-                <p className="font-semibold text-gray-800">
-                  {getServiceName(booking.service_id)} - {booking.start_time} - {booking.end_time}
-                </p>
-                <p className="text-sm text-red-500">Status: {booking.status}</p>
-                <p className="text-sm text-gray-600">
-                  Kund: {getCustomerName(booking.customer_id)} <p/>Utförs: {getEmployeeName(booking.employee_id)}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+    <div className="max-w-3xl mx-auto p-6 bg-white border border-gray-300 rounded-lg shadow-md mb-6">
+    <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+      Bokningar för {selectedDate.toLocaleDateString()}
+    </h2>
+    
+    <div className="mb-7 w-full">
+      <Calendar
+        onChange={handleDateChange}
+        value={selectedDate}
+        tileClassName="calendar-tile"
+        className="react-calendar w-full"
+      />
     </div>
+  
+    {selectedBookings.length === 0 ? (
+      <p className="text-gray-600 text-center">Inga bokningar för den här dagen.</p>
+    ) : (
+      <div>
+        {selectedBookings.map((booking) => (
+          <div
+            key={booking.id}
+            className="border rounded-lg p-4 mb-2 bg-gray-100 hover:bg-gray-200 transition-all flex justify-between items-center"
+          >
+            <div>
+              <p className="font-semibold text-gray-800">
+                {getServiceName(booking.service_id)} - {booking.start_time} - {booking.end_time}
+              </p>
+              <p className="text-sm text-red-500">Status: {booking.status}</p>
+              <p className="text-sm text-gray-600">
+                Kund: {getCustomerName(booking.customer_id)} <p/>Utförs: {getEmployeeName(booking.employee_id)}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+    )}
+  </div>
   );
 };
 

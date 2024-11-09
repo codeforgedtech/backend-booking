@@ -8,6 +8,7 @@ import BookingsTable from "../components/Dashboard/BookingsTable";
 import AddEmployee from "../components/Employee/AddEmployee";
 import EmployeeList from "../components/Employee/EmployeeList";
 import BookingCalendar from "../components/Dashboard/BookingCalendar";
+import ServiceList from "../components/ServiceState/ServiceList";
 
 const DashboardPage: React.FC = () => {
   return (
@@ -24,7 +25,7 @@ const DashboardPage: React.FC = () => {
         {/* Tjänst-hantering */}
         <section className="dashboard-section">
           <div className="section-header"></div>
-          <ServicesManager />
+          <ServiceList/>
         </section>
 
         {/* Lediga tider */}

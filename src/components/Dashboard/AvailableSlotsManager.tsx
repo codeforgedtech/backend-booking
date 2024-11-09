@@ -3,11 +3,12 @@
 import React from "react";
 // Se till att detta importerar din supabase klient
 import BookingsTable from "./BookingsTable";
-import BookingForm from "../Booking/BookingForm";
+
 import "./Bookis.scss";
 import CustomerManager from "../Customer/CustomerManager";
 
 import AvailableSlotsList from "./AvailableSlotsList";
+import AvailableSlots from "./AvailableSlots";
 const Bookis: React.FC = () => {
   return (
     <div className="dashboard-container">
@@ -23,8 +24,8 @@ const Bookis: React.FC = () => {
         {/* Tjänst-hantering */}
         <section className="dashboard-section">
           <div className="section-header"></div>
-          <BookingForm />
-          <AvailableSlotsList />
+
+          <AvailableSlots />
         </section>
 
         {/* Lediga tider */}

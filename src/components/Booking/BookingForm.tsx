@@ -64,8 +64,12 @@ const BookingForm: React.FC = () => {
 
   const fetchEmployees = async () => {
     const { data, error } = await supabase.from('users').select('*');
-    if (error) console.error('Fel vid hämtning av medarbetare:', error);
-    else setEmployees(data);
+    if (error) {
+      console.error('Error fetching employees:', error);
+    } else {
+      console.log('Employees fetched:', data); // Check the console to see if data is being fetched
+      setEmployees(data);
+    }
   };
 
   const fetchAvailableSlots = async () => {

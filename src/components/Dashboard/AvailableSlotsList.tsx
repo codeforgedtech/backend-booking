@@ -74,7 +74,7 @@ const AvailableSlotsList: React.FC = () => {
       <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Tillgängliga Tider</h2>
 
       {/* Kalenderkomponent */}
-      <div className="mb-6">
+      <div className="mb-6 w-full">
         <Calendar
           onChange={handleDateChange}
           value={selectedDate}
@@ -88,6 +88,7 @@ const AvailableSlotsList: React.FC = () => {
             const formattedDate = date.toISOString().split('T')[0];
             return slots.some(slot => slot.date === formattedDate) ? <div className="dot bg-green-400" /> : null;
           }}
+          className="w-full"
         />
       </div>
 
