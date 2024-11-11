@@ -109,7 +109,22 @@
       }
     }
   }
-
+  .notification-wrapper {
+    position: absolute;
+    top: -12px; // Justera höjden så att texten står ovanför bokningen
+    left: 80%;
+    transform: translateX(-50%);
+  }
+  
+  .notification-text {
+    background-color: red;
+    color: white;
+    font-size: 0.7rem;
+    font-weight: bold;
+    padding: 2px 5px;
+    border-radius: 5px;
+    white-space: nowrap;
+  }
   /* Hide nav-links on smaller screens and show them on mobile */
   @media (max-width: 768px) {
     .nav-links {

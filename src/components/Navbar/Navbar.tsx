@@ -1,14 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHome, faClipboardList, faUser, faBook, faClock, faBars, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faHome, faClipboardList, faUser, faBook, faBars, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { supabase } from '../../supabaseClient';
 import './Navbar.scss';
 
 const Navbar: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const [newBookingsCount, setNewBookingsCount] = useState(0); // Ny state för antalet nya bokningar
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkNewBookings = async () => {
+      const { data, error } = await supabase
+        .from('bookings')
+        .select('created_at')
+        .gt('created_at', localStorage.getItem('lastViewedBookingTime') || new Date(0).toISOString());
+
+      if (error) {
+        console.error('Error fetching bookings:', error.message);
+      } else if (data) {
+        setNewBookingsCount(data.length); // Uppdatera antalet nya bokningar
+      }
+    };
+
+    checkNewBookings();
+
+    const intervalId = setInterval(checkNewBookings, 60000); // Kontrollera var 60:e sekund
+
+    return () => clearInterval(intervalId);
+  }, []);
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -21,6 +43,11 @@ const Navbar: React.FC = () => {
 
   const toggleProfileDropdown = () => {
     setIsProfileDropdownOpen(!isProfileDropdownOpen);
+  };
+
+  const handleBookingsClick = () => {
+    setNewBookingsCount(0); // Återställ räkningen när användaren klickar på bokningar
+    localStorage.setItem('lastViewedBookingTime', new Date().toISOString());
   };
 
   return (
@@ -39,11 +66,21 @@ const Navbar: React.FC = () => {
           </Link>
         </li>
         <li>
-          <Link to="/bookings" className="hover:text-gray-300" onClick={() => setIsMobileMenuOpen(false)}>
-            <FontAwesomeIcon icon={faBook} className="icon" />
-            Bokningar
-          </Link>
-        </li>
+  <Link to="/bookings" className="hover:text-gray-300 relative" onClick={() => {
+    setIsMobileMenuOpen(false);
+    handleBookingsClick();
+  }}>
+    <div className="notification-wrapper">
+      {newBookingsCount > 0 && (
+        <span className="notification-text">
+          {newBookingsCount === 1 ? 'Ny' : `${newBookingsCount} Nya`}
+        </span>
+      )}
+    </div>
+    <FontAwesomeIcon icon={faBook} className="icon" />
+    Bokningar
+  </Link>
+</li>
         <li>
           <Link to="/categories" className="hover:text-gray-300" onClick={() => setIsMobileMenuOpen(false)}>
             <FontAwesomeIcon icon={faClipboardList} className="icon" />
@@ -83,6 +120,8 @@ const Navbar: React.FC = () => {
 };
 
 export default Navbar;
+
+
 
 
 
