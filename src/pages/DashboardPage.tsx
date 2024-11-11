@@ -1,10 +1,5 @@
 import React from "react";
-
-import ServicesManager from "../components/Dashboard/ServicesManager";
-
 import "./styles.scss";
-
-import BookingsTable from "../components/Dashboard/BookingsTable";
 import AddEmployee from "../components/Employee/AddEmployee";
 import EmployeeList from "../components/Employee/EmployeeList";
 import BookingCalendar from "../components/Dashboard/BookingCalendar";

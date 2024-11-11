@@ -15,4 +15,3 @@ export const bookings = [
   { id: 2, service_id: 2, date: '2024-11-02', payment_status: 'Pending' },
   // Lägg till fler bokningar
 ];
-  

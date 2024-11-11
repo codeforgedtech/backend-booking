@@ -3,6 +3,7 @@ import { supabase } from '../../supabaseClient';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 import './CustomerManager.scss'; // Import any additional custom SCSS here if needed
+import CustomerForm from './CustomForm';
 
 interface Customer {
   id: string;
@@ -33,50 +34,6 @@ const CustomerManager: React.FC = () => {
     fetchCustomers();
   }, []);
 
-  const handleAddOrUpdateCustomer = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setSuccess(false);
-
-    if (!name || !email || !phone) {
-      setError('Vänligen fyll i alla fält.');
-      return;
-    }
-
-    if (selectedCustomerId) {
-      const { error: supabaseError } = await supabase
-        .from('customers')
-        .update({ name, email, phone })
-        .eq('id', selectedCustomerId);
-      
-      if (supabaseError) {
-        setError(supabaseError.message);
-      } else {
-        setSuccess(true);
-        resetForm();
-        fetchCustomers();
-      }
-    } else {
-      const { error: supabaseError } = await supabase
-        .from('customers')
-        .insert([{ name, email, phone }]);
-      
-      if (supabaseError) {
-        setError(supabaseError.message);
-      } else {
-        setSuccess(true);
-        resetForm();
-        fetchCustomers();
-      }
-    }
-  };
-
-  const resetForm = () => {
-    setName('');
-    setEmail('');
-    setPhone('');
-    setSelectedCustomerId(null);
-  };
 
   const handleEdit = (customer: Customer) => {
     setName(customer.name);
@@ -102,47 +59,11 @@ const CustomerManager: React.FC = () => {
     <div className="max-w-3xl mx-auto p-6 bg-white border border-gray-300 rounded-lg shadow-md mb-6 mb-7 w-full">
       <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Hantera Kunder</h2>
       
-      <form onSubmit={handleAddOrUpdateCustomer} className="space-y-4">
-        <div>
-          <label className="block mb-1 text-gray-700">Namn:</label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="border border-gray-300 rounded w-full p-3 transition duration-200 focus:outline-none focus:border-blue-500 focus:ring focus:ring-blue-200"
-            required
-          />
-        </div>
-        <div>
-          <label className="block mb-1 text-gray-700">E-post:</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="border border-gray-300 rounded w-full p-3 transition duration-200 focus:outline-none focus:border-blue-500 focus:ring focus:ring-blue-200"
-            required
-          />
-        </div>
-        <div>
-          <label className="block mb-1 text-gray-700">Telefon:</label>
-          <input
-            type="tel"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            className="border border-gray-300 rounded w-full p-3 transition duration-200 focus:outline-none focus:border-blue-500 focus:ring focus:ring-blue-200"
-            required
-          />
-        </div>
-        {error && <p className="text-red-500 text-sm">{error}</p>}
-        {success && <p className="text-green-500 text-sm">Kunden har lagts till/uppdaterats!</p>}
-        <button
-          type="submit"
-          className="w-full bg-green-500 text-white p-3 rounded-lg hover:bg-green-600 transition duration-200 flex items-center justify-center"
-        >
-          <FontAwesomeIcon icon={faPlus} className="mr-2" />
-          {selectedCustomerId ? 'Uppdatera Kund' : 'Lägg till Kund'}
-        </button>
-      </form>
+     <CustomerForm onSuccess={function (): void {
+        throw new Error('Function not implemented.');
+      } } onError={function (message: string): void {
+        throw new Error('Function not implemented.');
+      } }/>
 
       <h3 className="text-xl font-semibold text-gray-800 mt-6">Befintliga Kunder</h3>
       {customers.length === 0 ? (
