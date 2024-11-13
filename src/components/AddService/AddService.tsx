@@ -56,7 +56,7 @@ const AddService: React.FC = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto p-4 border rounded shadow">
+    <div className="container mx-auto p-4">
       <h2 className="text-xl mb-4">Lägg till Tjänst</h2>
       <form onSubmit={handleAddService}>
         <div className="mb-4">

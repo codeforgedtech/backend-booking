@@ -2,14 +2,6 @@
 
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../../supabaseClient';
-import { PencilIcon, TrashIcon } from '@heroicons/react/24/solid'; // Importing icons
-import './AddCategory.scss'; // Importing the Sass file
-
-interface Category {
-  id: string;
-  name: string;
-  description: string;
-}
 
 const AddCategory: React.FC = () => {
   const [name, setName] = useState('');
@@ -98,55 +90,85 @@ const AddCategory: React.FC = () => {
   };
 
   return (
-    <div className="add-category-container">
-      <h2>{editCategoryId ? 'Redigera Kategori' : 'Lägg till Kategori'}</h2>
-      <form onSubmit={handleAddOrUpdateCategory}>
-        <div className="mb-4">
-          <label>Namn:</label>
+    <div className="container mx-auto p-6 max-w-lg">
+      <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+        {editCategoryId ? 'Redigera Kategori' : 'Lägg till Kategori'}
+      </h2>
+      
+      {/* Category Form */}
+      <form onSubmit={handleAddOrUpdateCategory} className="mb-4">
+        {/* Category Name */}
+        <div>
+          <label htmlFor="name" className="block mb-1 text-gray-700">Namn:</label>
           <input
             type="text"
+            id="name"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
         </div>
-        <div className="mb-4">
-          <label>Beskrivning:</label>
+
+        {/* Category Description */}
+        <div>
+          <label htmlFor="description" className="block mb-1 text-gray-700">Beskrivning:</label>
           <textarea
+            id="description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={4}
+            className="border border-gray-300 rounded w-full p-2 transition duration-200 focus:outline-none focus:border-blue-500 focus:ring focus:ring-blue-200"
           />
         </div>
-        {error && <p className="error-message">{error}</p>}
-        {success && <p className="success-message">Kategorin har lagts till/uppdaterats!</p>}
-        <button type="submit">{editCategoryId ? 'Uppdatera Kategori' : 'Lägg till Kategori'}</button>
+
+        {/* Error and Success Messages */}
+        {error && <p className="text-sm text-red-500">{error}</p>}
+        {success && <p className="text-sm text-green-500">Kategorin har lagts till/uppdaterats!</p>}
+
+        {/* Submit Button */}
+        <button
+          type="submit"
+          className="w-full bg-green-500 text-white p-3 rounded-lg hover:bg-green-600 transition duration-200"
+        >
+          {editCategoryId ? 'Uppdatera Kategori' : 'Lägg till Kategori'}
+        </button>
       </form>
 
-      <h2 className="mt-6">Existerande Kategorier</h2>
-      <ul>
-        {categories.map((category) => (
-          <li key={category.id} className="flex justify-between items-center mb-2">
-            <div>
-             
-              {category.name && <p className="text-black">{category.name}</p>}
-            </div>
-            <div className="flex items-center">
-            <button className="icon-button text-blue-500" onClick={() => handleEditCategory(category)}>
-  <PencilIcon />
-</button>
-<button className="icon-button text-red-500" onClick={() => handleDeleteCategory(category.id)}>
-  <TrashIcon />
-</button>
-            </div>
-          </li>
-        ))}
-      </ul>
+      {/* Category List */}
+      <div className="mt-8">
+        <h3 className="text-xl font-semibold text-gray-800">Tillgängliga Kategorier</h3>
+        <ul className="mt-4 space-y-4">
+          {categories.map((category) => (
+            <li key={category.id} className="flex justify-between items-center bg-gray-50 border border-gray-300 rounded-lg p-4 shadow-sm">
+              <div className="flex-grow">
+                <div className="font-semibold text-gray-800">{category.name}</div>
+                <p className="text-sm text-gray-600">{category.description}</p>
+              </div>
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => handleEditCategory(category)}
+                  className="bg-yellow-500 text-white py-1 px-3 rounded-lg hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                >
+                  Redigera
+                </button>
+                <button
+                  onClick={() => handleDeleteCategory(category.id)}
+                  className="bg-red-500 text-white py-1 px-3 rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
+                >
+                  Ta bort
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 };
 
 export default AddCategory;
+
 
 
 

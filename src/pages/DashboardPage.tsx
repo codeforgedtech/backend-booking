@@ -4,6 +4,7 @@ import AddEmployee from "../components/Employee/AddEmployee";
 import EmployeeList from "../components/Employee/EmployeeList";
 import BookingCalendar from "../components/Dashboard/BookingCalendar";
 import ServiceList from "../components/ServiceState/ServiceList";
+import ManageOpenHours from "../components/OpenHours/ManageOpenHours";
 
 const DashboardPage: React.FC = () => {
   return (
@@ -26,8 +27,7 @@ const DashboardPage: React.FC = () => {
         {/* Lediga tider */}
         <section className="dashboard-section">
           <div className="section-header"></div>
-          <AddEmployee />
-          <EmployeeList />
+        <ManageOpenHours/>
         </section>
       </div>
     </div>

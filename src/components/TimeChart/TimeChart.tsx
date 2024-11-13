@@ -1,10 +1,8 @@
 import React from "react";
-// Se till att detta importerar din supabase klient
-import AddCategory from "./AddCategory";
-import CategoryList from "./CategoryList";
-import BookingCalendar from "../Dashboard/BookingCalendar";
 
 
+import AddTime from "./AddTime";
+import TimeBooking from "./TimeBooking";
 const Bookis: React.FC = () => {
   return (
     <div className="dashboard-container">
@@ -14,19 +12,21 @@ const Bookis: React.FC = () => {
         {/* Kategori-hantering */}
         <section className="dashboard-section">
           <div className="section-header"></div>
-          <AddCategory />
+          <AddTime />
         </section>
 
         {/* Tjänst-hantering */}
         <section className="dashboard-section">
           <div className="section-header"></div>
-     <BookingCalendar/> 
+          <TimeBooking/>
+   
         </section>
 
         {/* Lediga tider */}
         <section className="dashboard-section">
-          <div className="section-header"></div>
-        <CategoryList/>
+          <div className="section-header">
+          
+          </div>
         </section>
       </div>
     </div>

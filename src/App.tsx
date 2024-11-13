@@ -7,10 +7,12 @@ import CustomerManager from './components/Customer/CustomerManager';
 import BookingForm from './components/Booking/BookingForm';
 import Category from './components/AddService/CategoryAndService'
 import Navbar from './components/Navbar/Navbar';
+import TimeChart from './components/TimeChart/TimeChart'
 import AddAvailableSlotPage from './components/Dashboard/AddAvailableSlotPage';
 import Bookis from './components/Dashboard/AvailableSlotsManager';
 import ProtectRoute from './components/Authentication/ProtectedRoute'; // Import ProtectRoute
 import LoginModal from './components/Authentication/LoginModal'; // Assuming LoginModal is your login page component
+import AddEmployee from './components/Employee/Employeer';
 
 const App: React.FC = () => {
   return (
@@ -26,6 +28,8 @@ const App: React.FC = () => {
           <Route path="/customers" element={<><Navbar /><CustomerManager /></>} />
           <Route path="/addBooking" element={<><Navbar /><BookingForm /></>} />
           <Route path="/categories" element={<><Navbar /><Category /></>} />
+          <Route path="/time" element={<><Navbar /><TimeChart /></>} />
+          <Route path="/employeer" element={<><Navbar /><AddEmployee /></>} />
           <Route path="/bookings" element={<><Navbar /><Bookis /></>} />
           <Route path="/add-slot" element={<><Navbar /><AddAvailableSlotPage /></>} />
         </Route>

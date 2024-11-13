@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHome, faClipboardList, faUser, faBook, faBars, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faHome, faClipboardList, faUser, faBook, faBars, faTimes, faClock } from '@fortawesome/free-solid-svg-icons';
 import { supabase } from '../../supabaseClient';
 import './Navbar.scss';
 
@@ -87,6 +87,12 @@ const Navbar: React.FC = () => {
             Kategorier
           </Link>
         </li>
+        <li>
+          <Link to="/time" className="hover:text-gray-300" onClick={() => setIsMobileMenuOpen(false)}>
+            <FontAwesomeIcon icon={faClock} className="icon" />
+            Tider
+          </Link>
+        </li>
 
         {/* Profile Dropdown */}
         <li className="relative">
@@ -99,6 +105,11 @@ const Navbar: React.FC = () => {
               <li>
                 <Link to="/profile" className="hover:text-gray-300 px-4 py-2 block" onClick={() => setIsProfileDropdownOpen(false)}>
                   Profil
+                </Link>
+              </li>
+              <li>
+                <Link to="/employeer" className="hover:text-gray-300 px-4 py-2 block" onClick={() => setIsProfileDropdownOpen(false)}>
+                  Medarbetare
                 </Link>
               </li>
               <li>

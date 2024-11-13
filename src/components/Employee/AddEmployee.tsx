@@ -11,7 +11,7 @@ interface Service {
 const AddEmployee: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('');
+  const [displayName, setDisplayName] = useState('');
   const [serviceId, setServiceId] = useState<string | null>(null);
   const [services, setServices] = useState<Service[]>([]);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -36,7 +36,7 @@ const AddEmployee: React.FC = () => {
     e.preventDefault();
 
     try {
-      // Step 1: Register the user in Supabase Auth
+      // Step 1: Register user in Supabase Auth
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
@@ -49,14 +49,15 @@ const AddEmployee: React.FC = () => {
         return;
       }
 
-      // Step 2: Insert employee data in the custom "users" table
+      // Step 2: Insert employee data into `users` table with role set to "employee"
       const id = uuidv4();
       const password_hash = bcrypt.hashSync(password, 10);
       const created_at = new Date().toISOString();
+      const role = 'employee';  // Set role to "employee"
 
       const { data: userData, error: userError } = await supabase
         .from('users')
-        .insert([{ id, email, password_hash, role, created_at }]);
+        .insert([{ id, email, password_hash, role, display_name: displayName, created_at }]);
 
       if (userError) {
         console.error('Error adding user to database:', userError);
@@ -65,7 +66,7 @@ const AddEmployee: React.FC = () => {
         return;
       }
 
-      // Step 3: Associate employee with a service
+      // Step 3: Associate employee with a selected service
       if (serviceId) {
         const { error: assocError } = await supabase
           .from('employee_services')
@@ -82,7 +83,7 @@ const AddEmployee: React.FC = () => {
       setErrorMessage(null);
       setEmail('');
       setPassword('');
-      setRole('');
+      setDisplayName('');
       setServiceId(null);
     } catch (error) {
       console.error('Unexpected error:', error);
@@ -111,24 +112,24 @@ const AddEmployee: React.FC = () => {
         </div>
 
         <div className="mb-4">
-          <label htmlFor="password" className="block text-gray-700">Lösenord:</label>
+          <label htmlFor="displayName" className="block text-gray-700">Visningsnamn:</label>
           <input
-            type="password"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            type="text"
+            id="displayName"
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
             required
             className="w-full px-3 py-2 border border-gray-300 rounded-lg"
           />
         </div>
 
         <div className="mb-4">
-          <label htmlFor="role" className="block text-gray-700">Roll:</label>
+          <label htmlFor="password" className="block text-gray-700">Lösenord:</label>
           <input
-            type="text"
-            id="role"
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
+            type="password"
+            id="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             required
             className="w-full px-3 py-2 border border-gray-300 rounded-lg"
           />
@@ -164,6 +165,8 @@ const AddEmployee: React.FC = () => {
 };
 
 export default AddEmployee;
+
+
 
 
 
