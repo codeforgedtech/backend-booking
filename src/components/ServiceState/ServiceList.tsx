@@ -10,7 +10,10 @@ const ServiceList = () => {
   const [categories, setCategories] = useState<any[]>([]);
   const [bookings, setBookings] = useState<any[]>([]);
   const [expandedServiceId, setExpandedServiceId] = useState<number | null>(null);
-  const [bookingFilter, setBookingFilter] = useState<'week' | 'month'>('week');
+  const [bookingFilter, setBookingFilter] = useState<'year' | 'month' | 'week'>('week');
+  const [selectedYear, setSelectedYear] = useState<number | null>(null);
+  const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
+  const [selectedWeek, setSelectedWeek] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -36,18 +39,22 @@ const ServiceList = () => {
 
   const getBookingsForService = (serviceId: number) => {
     const today = new Date();
-    const currentWeek = getWeekNumber(today);
-    const currentMonth = today.getMonth();
+    const currentYear = selectedYear || today.getFullYear();
+    const currentMonth = selectedMonth || today.getMonth();
+    const currentWeek = selectedWeek || getWeekNumber(today);
 
     return bookings.filter((booking) => {
       const bookingDate = new Date(booking.booking_date);
-      const bookingWeek = getWeekNumber(bookingDate);
+      const bookingYear = bookingDate.getFullYear();
       const bookingMonth = bookingDate.getMonth();
+      const bookingWeek = getWeekNumber(bookingDate);
 
-      if (bookingFilter === 'week') {
-        return booking.service_id === serviceId && bookingWeek === currentWeek;
+      if (bookingFilter === 'year') {
+        return booking.service_id === serviceId && bookingYear === currentYear;
       } else if (bookingFilter === 'month') {
-        return booking.service_id === serviceId && bookingMonth === currentMonth;
+        return booking.service_id === serviceId && bookingYear === currentYear && bookingMonth === currentMonth;
+      } else if (bookingFilter === 'week') {
+        return booking.service_id === serviceId && bookingYear === currentYear && bookingWeek === currentWeek;
       }
 
       return false;
@@ -62,8 +69,20 @@ const ServiceList = () => {
     return Math.ceil((dayOfYear + 1) / 7);
   };
 
-  const handleBookingFilterChange = (filter: 'week' | 'month') => {
+  const handleBookingFilterChange = (filter: 'year' | 'month' | 'week') => {
     setBookingFilter(filter);
+  };
+
+  const handleYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedYear(Number(e.target.value));
+  };
+
+  const handleMonthChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedMonth(Number(e.target.value));
+  };
+
+  const handleWeekChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedWeek(Number(e.target.value));
   };
 
   const getBookingStatusData = () => {
@@ -91,14 +110,14 @@ const ServiceList = () => {
         {
           label: 'Antal Bokningar',
           data: [statusCount.Paid, statusCount.Pending, statusCount.Unpaid],
-          backgroundColor: 'rgba(75, 192, 192, 0.6)', // Tydligare grön
+          backgroundColor: 'rgba(75, 192, 192, 0.6)',
           borderColor: 'rgba(75, 192, 192, 1)',
           borderWidth: 1,
         },
         {
           label: 'Total Inkomst (SEK)',
           data: [statusIncome.Paid, statusIncome.Pending, statusIncome.Unpaid],
-          backgroundColor: 'rgba(255, 206, 86, 0.6)', // Tydligare gul
+          backgroundColor: 'rgba(255, 206, 86, 0.6)',
           borderColor: 'rgba(255, 206, 86, 1)',
           borderWidth: 1,
         },
@@ -108,16 +127,69 @@ const ServiceList = () => {
 
   return (
     <div className="mt-4">
-      <h2 className="text-lg font-semibold text-gray-800">Statestik</h2>
+      <h2 className="text-lg font-semibold text-gray-800">Statistik</h2>
       <div className="mt-4 mb-4">
         <button onClick={() => handleBookingFilterChange('week')} className="bg-blue-500 text-white py-2 px-4 rounded-md mr-2">
           Veckobokningar
         </button>
-        <button onClick={() => handleBookingFilterChange('month')} className="bg-green-500 text-white py-2 px-4 rounded-md">
+        <button onClick={() => handleBookingFilterChange('month')} className="bg-green-500 text-white py-2 px-4 rounded-md mr-2">
           Månadens Bokningar
         </button>
+        <button onClick={() => handleBookingFilterChange('year')} className="bg-red-500 text-white py-2 px-4 rounded-md">
+          Årsbokningar
+        </button>
       </div>
+
+      {bookingFilter === 'year' && (
+        <div className="mb-6">
+         
+          <select
+            id="year"
+            onChange={handleYearChange}
+            className="border border-gray-300 rounded-md p-2"
+          >
+            <option value={new Date().getFullYear()}>{new Date().getFullYear()}</option>
+            <option value={new Date().getFullYear() - 1}>{new Date().getFullYear() - 1}</option>
+            <option value={new Date().getFullYear() - 2}>{new Date().getFullYear() - 2}</option>
+            {/* Lägg till fler år vid behov */}
+          </select>
+        </div>
+      )}
+
+      {bookingFilter === 'month' && (
+        <div className="mb-6">
+          
+          <select
+            id="month"
+            onChange={handleMonthChange}
+            className="border border-gray-300 rounded-md p-2"
+          >
+            {Array.from({ length: 12 }, (_, index) => (
+              <option key={index} value={index}>
+                {new Date(0, index).toLocaleString('default', { month: 'long' })}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      {bookingFilter === 'week' && (
+        <div className="mb-6">
       
+          <select
+            id="week"
+            onChange={handleWeekChange}
+            className="border border-gray-300 rounded-md p-2"
+          >
+            {Array.from({ length: 52 }, (_, index) => (
+              <option key={index} value={index + 1}>
+                Vecka {index + 1}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
       {/* Stapeldiagram över bokningsstatus och inkomster */}
       <div className="my-6">
         <Bar
@@ -130,7 +202,7 @@ const ServiceList = () => {
             },
             plugins: {
               legend: { position: 'top' },
-              title: { display: true, text: 'Bokningsstatus och Inkomst' },
+              title: { display: true, text: 'Bokningsstatus och Inkomst per Period' },
             },
           }}
         />
@@ -193,6 +265,7 @@ const ServiceList = () => {
 };
 
 export default ServiceList;
+
 
 
 

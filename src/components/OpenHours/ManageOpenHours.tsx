@@ -25,22 +25,35 @@ const OpeningHours: React.FC = () => {
       console.error('Error fetching open hours:', error);
     } else {
       setOpenHours(data || []);
+      // Kör kontroll efter uppdatering
       checkIfOpenNow(data || []);
     }
   };
 
   // Kontrollera om det är öppet just nu
   const checkIfOpenNow = (hours: OpenHour[]) => {
-    const today = new Date().toLocaleDateString('sv-SE', { weekday: 'short' });
-    const currentTime = new Date().toTimeString().slice(0, 5);
-
-    const todayHours = hours.find((hour) => hour.day === today);
+    const today = new Date().toLocaleDateString('sv-SE', { weekday: 'short' }); // Ger t.ex. "mån"
+    const currentTime = new Date().toLocaleTimeString('sv-SE', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    }); // Ger t.ex. "14:30"
+  
+    // Matcha dagens öppettider
+    const todayHours = hours.find((hour) => hour.day.toLowerCase() === today.toLowerCase());
+  
     if (todayHours && todayHours.open_time !== 'Stängd' && todayHours.close_time !== 'Stängd') {
-      setIsOpenNow(currentTime >= todayHours.open_time && currentTime <= todayHours.close_time);
+      // Kontrollera om currentTime är inom öppettiderna
+      if (currentTime >= todayHours.open_time && currentTime <= todayHours.close_time) {
+        setIsOpenNow(true);
+      } else {
+        setIsOpenNow(false);
+      }
     } else {
       setIsOpenNow(false);
     }
   };
+  
 
   // Öppna modal för att redigera en specifik dag
   const openEditModal = (day: OpenHour) => {
@@ -64,22 +77,34 @@ const OpeningHours: React.FC = () => {
   // Spara ändringar till Supabase
   const handleSave = async () => {
     if (selectedDay) {
+      const openTime = selectedDay.open_time.trim() || 'Stängd';
+      const closeTime = selectedDay.close_time.trim() || 'Stängd';
+  
+      // Kontrollera att tider är i korrekt format
+      const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
+      if ((openTime !== 'Stängd' && !timeRegex.test(openTime)) || 
+          (closeTime !== 'Stängd' && !timeRegex.test(closeTime))) {
+        alert('Ange tid i formatet HH:mm eller lämna tomt för "Stängd".');
+        return;
+      }
+  
       const { error } = await supabase
         .from('open_hours')
         .update({
-          open_time: selectedDay.open_time === '' ? 'Stängd' : selectedDay.open_time,
-          close_time: selectedDay.close_time === '' ? 'Stängd' : selectedDay.close_time,
+          open_time: openTime,
+          close_time: closeTime,
         })
         .eq('id', selectedDay.id);
-
+  
       if (error) {
         console.error('Error updating open hours:', error);
       } else {
-        fetchOpenHours(); // Uppdatera listan med nya värden
+        fetchOpenHours(); // Uppdatera öppettider
         closeModal();
       }
     }
   };
+  
 
   return (
     <div className="mmax-w-3xl mx-auto p-6 bg-white border border-gray-300 rounded-lg shadow-md mb-6">
